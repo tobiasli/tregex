@@ -3,9 +3,9 @@ sudo: false  # Speed up build, allegedly.
 python:
   - "3.6"
 install:
+  - pip install python-coveralls
   - pip install pytest
   - pip install pytest-cov
-  - pip install python-coveralls
 # command to run tests
 script:
   - pytest --cov=tregex test/
