@@ -4,11 +4,10 @@ python:
   - "3.6"
 install:
   - pip install pytest
-  - pip install codecov
+  - pip install python-coveralls
 # command to run tests
 script:
   - python -m pytest tregex/test/
-  - coverage run tregex/test/
 # Push the results back to codecov
 after_success:
-  - codecov
+  - coveralls
