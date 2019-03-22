@@ -1,6 +1,6 @@
 language: python
-# install
-pip install pytest
+install:
+  - pip install pytest
 # command to run tests
 script:
   - pytest
