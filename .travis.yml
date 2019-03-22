@@ -1,8 +1,14 @@
 language: python
+sudo: false  # Speed up build, allegedly.
 python:
   - "3.6"
 install:
   - pip install pytest
+  - pip install codecov
 # command to run tests
 script:
   - python -m pytest tregex/test/
+  - coverage run tregex/test/
+# Push the results back to codecov
+after_success:
+  - codecov
