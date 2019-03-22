@@ -2,14 +2,15 @@ language: python
 sudo: false  # Speed up build, allegedly.
 python:
   - "3.6"
-before_install: cd tregex
+before_install:
+  - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 install:
   - pip install python-coveralls
   - pip install pytest
   - pip install pytest-cov
 # command to run tests
 script:
-  - pytest --cov=tregex test/
+  - pytest --cov=tregex tregex
 # Push the results back to codecov
 after_success:
   - coveralls
