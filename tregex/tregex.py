@@ -1,3 +1,5 @@
+"""Tregex is a module for parsing sorting outputs from regular expressions."""
+
 import re
 import difflib
 from typing import Union, List, Dict, Tuple, Iterable
@@ -8,13 +10,18 @@ NAMED_GROUP_DETECTION = r'(\(\?P<\w+>)'
 NAMED_GROUP_REFERENCE_DETECTION = r'\(\?\(\w+\)'
 DEFAULT_SEARCH_SCORE_CUTOFF = 0.6
 CONTENT_MATCH_DEFAULT_SCORE = 0.01
+# noinspection PyUnresolvedReferences
+REGEX_PATTERN = Union[str, re.Pattern]
 
 
 class TregexUnknownMethodError(Exception):
+    """Error raised when we _process encounters an output argument with that does not match any known output
+    parsings."""
     pass
 
 
 class TregexMismatchError(Exception):
+    """Error encountered when Tregex does not find a match."""
     pass
 
 
@@ -46,19 +53,19 @@ class GenericPropertyClass:
         return self.dict == other.dict
 
 
-def _process(pattern: str, string: str, output='smart', flags: re.RegexFlag = DEFAULT_FLAG) \
+def _process(pattern: REGEX_PATTERN, string: str, output='smart', flags: re.RegexFlag = DEFAULT_FLAG) \
         -> List[Union[Tuple[str], Dict[str, str], str]]:
     """Compile and run a regular expression and posprocess the results depending of the [output].
 
     Args:
         pattern: The pattern string for the regex.
         string: The string being matched with the pattern.
-        output: Which post procesing to run on the output, se Below.
+        output: Which post proccesing to run on the output, se Below.
         flags: The input arguments for the regex parse. Defaults to re.UNICODE | re.DOTALL.
 
     Returns:
         '': Assumes simple match, and returns a list of matching pattern in string.
-        'group': Assumes capture groups, and returns a list of tuples for each pattern group for each pattern match.
+        'tuple': Assumes capture groups, and returns a list of tuples for each pattern group for each pattern match.
         'name': Assumes named capture groups in pattern, and returns a list of dictionaries matching the named groups.
         'smart': Scans the pattern for named groups, groups or nothing, and returns the appropriate structure.
 
@@ -66,28 +73,29 @@ def _process(pattern: str, string: str, output='smart', flags: re.RegexFlag = DE
         TregexUnknownMethodError when arg 'output' does not match any output type.
     """
 
-    # Todo: Precompile the pattern so that we don't have to compile at every call.
-
-    r = re.compile(pattern, flags)
+    if isinstance(pattern, str):
+        r = re.compile(pattern, flags)
+    else:
+        r = pattern
     result = [found for found in r.finditer(string)]
     if result:
         return_list = []
 
         if output == 'smart':
             if result[0].groupdict():
-                output = 'name'
+                output = 'dict'
             elif result[0].groups():
-                output = 'group'
+                output = 'tuple'
             else:
                 output = ''
 
         if not output:
             for m in result:
                 return_list += [m.group()]
-        elif output == 'name':
+        elif output == 'dict':
             for m in result:
                 return_list += [m.groupdict()]
-        elif output == 'group':
+        elif output == 'tuple':
             for m in result:
                 return_list += [m.groups()]
         else:
@@ -98,37 +106,37 @@ def _process(pattern: str, string: str, output='smart', flags: re.RegexFlag = DE
         return []
 
 
-def to_dict(pattern: str, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[Dict]:
+def to_dict(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[Dict]:
     """Identifies named capture groups in pattern, and outputs matches as a list of dictionaries with named capture
     groups as keys."""
 
-    return _process(pattern, string, output='name', flags=flags)
+    return _process(pattern, string, output='dict', flags=flags)
 
 
-def to_object(pattern: str, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[GenericPropertyClass]:
+def to_object(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[GenericPropertyClass]:
     """Identifies named capture groups in pattern, and outputs matches as a list of objects with named capture groups as
     properties."""
-    result = _process(pattern, string, output='name', flags=flags)
+
+    result = _process(pattern, string, output='dict', flags=flags)
     return [GenericPropertyClass(**dictionary) for dictionary in result]
 
 
-def match(pattern: str, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[str]:
+def to_tuple(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[Tuple[str]]:
+    """Identifies capture groups in pattern, and outputs matches as a list of tuples of strings matching the pattern."""
+
+    return _process(pattern, string, output='tuple', flags=flags)
+
+# TODO: Add to_bool for simple matching of pattern to string.
+
+
+def match(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[str]:
     """Returns the string if it matches. will remove any named groups from pattern
     before compiling."""
 
-    pattern = re.sub(NAMED_GROUP_DETECTION, '(', pattern)  # Remove regular groups.
-    pattern = re.sub(NAMED_GROUP_REFERENCE_DETECTION, '(', pattern)  # Remove named groups.
     return _process(pattern, string, output='', flags=flags)
 
 
-def to_tuple(pattern: str, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[Tuple[str]]:
-    """Identifies capture groups in pattern, and outputs matches as a list of tuples of strings matching the pattern."""
-
-    pattern = re.sub(NAMED_GROUP_DETECTION, '(', pattern)  # Remove named groups.
-    return _process(pattern, string, output='group', flags=flags)
-
-
-def smart(pattern: str, string: str, flags: re.RegexFlag = DEFAULT_FLAG)\
+def smart(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_FLAG)\
         -> List[Union[Tuple[str], Dict[str, str], str]]:
     """Identifies properties of the pattern, and outputs matches as a list of
     objects based on the properties of the pattern:
@@ -233,3 +241,30 @@ def find_scores(search_string: str, search_list: Iterable[str], score_cutoff: NU
         result = []
 
     return result
+
+
+class TregexCompiled:
+    """Class for containing a regex pattern, parsing strings and performing different operations on the output."""
+
+    def __init__(self, pattern: str, flags: re.RegexFlag = DEFAULT_FLAG) -> None:
+        """Compile a pattern and make it available for the underlying parsing functions."""
+
+        self.r = re.compile(pattern, flags)
+
+    def to_dict(self, string: str) -> List[Dict]:
+        """Identifies named capture groups in pattern, and outputs matches as a list of dictionaries with named capture
+        groups as keys."""
+
+        return to_dict(self.r, string)
+
+    def to_object(self, string: str) -> List[GenericPropertyClass]:
+        """Identifies named capture groups in pattern, and outputs matches as a list of objects with named capture
+        groups as properties."""
+
+        return to_object(self.r, string)
+
+    def to_tuple(self, string: str) -> List[Tuple[str]]:
+        """Identifies capture groups in pattern, and outputs matches as a list of tuples of strings matching the
+        pattern."""
+
+        return to_tuple(self.r, string)
