@@ -2,6 +2,7 @@ language: python
 sudo: false  # Speed up build, allegedly.
 python:
   - "3.6"
+  - "3.7"
 before_install:
   - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 install:

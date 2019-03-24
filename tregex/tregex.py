@@ -10,8 +10,12 @@ NAMED_GROUP_DETECTION = r'(\(\?P<\w+>)'
 NAMED_GROUP_REFERENCE_DETECTION = r'\(\?\(\w+\)'
 DEFAULT_SEARCH_SCORE_CUTOFF = 0.6
 CONTENT_MATCH_DEFAULT_SCORE = 0.01
+if hasattr(re, 'Pattern'):
+    re_pattern_type = re.Pattern  # Python 3.7
+else:
+    re_pattern_type = re._pattern_type  # Python 3.6
 # noinspection PyUnresolvedReferences
-REGEX_PATTERN = Union[str, re.Pattern]
+REGEX_PATTERN = Union[str, re_pattern_type]
 
 
 class TregexUnknownMethodError(Exception):
