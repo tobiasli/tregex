@@ -1,18 +1,23 @@
 language: python
 dist: xenial
-sudo: false  # Speed up build, allegedly.
+sudo: false
 python:
-  - "3.6"
-  - "3.7"
+- '3.6'
+- '3.7'
 before_install:
-  - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
+- export PYTHONPATH=$PYTHONPATH:$(pwd)
 install:
-  - pip install python-coveralls
-  - pip install pytest
-  - pip install pytest-cov
-# command to run tests
+- pip install python-coveralls
+- pip install pytest
+- pip install pytest-cov
 script:
-  - pytest --cov=tregex tregex
-# Push the results back to codecov
+- pytest --cov=tregex tregex
 after_success:
-  - coveralls
+- coveralls
+deploy:
+  provider: pypi
+  user: tobiasli
+  password:
+    secure: uxfDpef4MrDVAigROcEKsFHDiOi52WzRX1TkGRcyrktp/P9BbCDBlWZ60tNUX04PS6e4Y14wB7BOplw236Uk7LcOU06G6oBJgqGEeN4Tiy8U1Cl71F2usj617t+YdM9gyhFNJJJEZ84MvO/0Pjxhz/fU8QB9c9IID4VyNXtjMDm8j7fgkzPIEC0tAAyMxzWEuiZkgQ8yxEDeeCC/rfu43zzA7GNd1DvMNsDNZi7UdPfdcGpfZSgV0yjNYe2sjAwwHBnL0pgKvDcuZ4T8XuKf24RI2qKPpZvfPINIAqcea6+Kw/BvukbNfKaTaMn0s1C1K2IGYYJYCfYJ+8HBLUea2Ym6ESa/3BtdjC8x2asnk1pINfjl4ruCwqlb95A0J58BOsJUbuMxtrst7w8eqDLjZzUBQAAcv9wPs2oeCtdJyHqH+msB16qkJzg2IWCBQRryipxDklyg6szZYLO5VEQYvNPIuEl8hMOkwRCOXcsdn8wZM2kBMZFze4WPptfiWCh6yN9c3LTzlRN5XUv/UGQwf9zBSvxwBxgpB+I6X1/rqqz2eQ++UXINTeF0GeqdYkXCAP9bFatG5r5zPqlqJqwQb3L2G2xc3iCTMZxHNWmtmwyXZlx3BKguRNC9PkGWXEgOm+EfaLT1MYTmU4mHS2XlWfsvqxxnl7PaLasrsU5Dz5k=
+  on:
+    branch: master
