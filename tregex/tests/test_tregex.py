@@ -36,9 +36,9 @@ def test_process():
     assert not nothing_found
 
 
-def test_match():
-    for pattern, candidate in FIND_TEST_CASES:
-        assert tregex.match(pattern, candidate), candidate
+@pytest.mark.parametrize('pattern, candidate', FIND_TEST_CASES)
+def test_match(pattern, candidate):
+    assert tregex.match(pattern, candidate), candidate
 
 
 @pytest.mark.parametrize('pattern, candidate, expected', GROUP_TEST_CASES)
@@ -59,8 +59,9 @@ def test_to_dict(pattern, string, expected):
 @pytest.mark.parametrize('pattern, string, expected', NAMED_TEST_CASES)
 def test_to_object(pattern, string, expected):
     result = tregex.to_object(pattern, string)
-    for key in expected[0]:
+    for key, value in expected[0].items():
         assert hasattr(result[0], key)
+        assert getattr(result[0], key) == value
 
 
 def test_find():
@@ -89,14 +90,30 @@ def test_find_best():
 
 @pytest.mark.parametrize('pattern, string, expected', NAMED_TEST_CASES)
 def test_compiled_to_dict(pattern, string, expected):
-    tre = tregex.TregexCompiled(pattern)
+    trc = tregex.TregexCompiled(pattern)
 
-    assert tre.to_dict(string) == expected
+    assert trc.to_dict(string) == expected
+
+
+@pytest.mark.parametrize('pattern, string, expected', NAMED_TEST_CASES)
+def test_compiled_to_object(pattern, string, expected):
+    trc = tregex.TregexCompiled(pattern)
+
+    result = trc.to_object(string)
+    for key, value in expected[0].items():
+        assert hasattr(result[0], key)
+        assert getattr(result[0], key) == value
 
 
 @pytest.mark.parametrize('pattern, string, expected', GROUP_TEST_CASES)
-def test_to_tuple(pattern, string, expected):
-    tre = tregex.TregexCompiled(pattern)
+def test_compiled_to_tuple(pattern, string, expected):
+    trc = tregex.TregexCompiled(pattern)
 
-    assert tre.to_tuple(string) == expected
+    assert trc.to_tuple(string) == expected
+
+
+@pytest.mark.parametrize('pattern, candidate', FIND_TEST_CASES)
+def test_compiled_match(pattern, candidate):
+    trc = tregex.TregexCompiled(pattern)
+    assert trc.match(candidate), candidate
 

@@ -130,8 +130,6 @@ def to_tuple(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_
 
     return _process(pattern, string, output='tuple', flags=flags)
 
-# TODO: Add to_bool for simple matching of pattern to string.
-
 
 def match(pattern: REGEX_PATTERN, string: str, flags: re.RegexFlag = DEFAULT_FLAG) -> List[str]:
     """Returns the string if it matches. will remove any named groups from pattern
@@ -272,3 +270,8 @@ class TregexCompiled:
         pattern."""
 
         return to_tuple(self.r, string)
+
+    def match(self, string: str) -> List[str]:
+        """Finds matches of pattern in string, and returns the matched portion of the strings."""
+
+        return match(self.r, string)
