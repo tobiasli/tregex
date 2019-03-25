@@ -3,6 +3,14 @@
 
 `tregex` is a wrapper around Python regular expressions that makes usage smoother and more user friendly.
 
+## Install
+
+```
+pip install tregex-tobiasli
+```
+
+## Usage
+
 ```python
 import tregex as tr
 
