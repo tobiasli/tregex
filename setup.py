@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(name='tregex',
+setuptools.setup(name='tregex_tobiasli',
                  version='1.0',
                  description='Wrapper for more functionality out of regex parse results.',
                  author='Tobias Litherland',
