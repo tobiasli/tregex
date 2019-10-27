@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(name='tregex-tobiasli',
-                 version='1.0.1',
+                 version='1.0.2',
                  description='Wrapper for more functionality out of regex parse results.',
                  author='Tobias Litherland',
                  author_email='tobiaslland@gmail.com',
