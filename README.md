@@ -15,17 +15,18 @@ pip install tregex-tobiasli
 
 ```python
 import tregex as tr
-
-t = tr.to_tuple(pattern='([^;]+?)@(.+?)\.([^;]+)', string='john.smith@somewhere.co.uk; hackzor@coolface.com')
+emails = 'john.smith@somewhere.co.uk; hackzor@coolface.com'
+pattern = '([^;]+?)@(.+?)\.([^;]+)'
+t = tr.to_tuple(pattern=pattern, string=emails)
 assert t[0][1] == 'somewhere'
 assert t[1][2] == 'com'
 
-pattern = '(?P<name>[^;]+?)@(?P<address>.+?)\.(?P<domain>[^;]+)'
-t = tr.to_dict(pattern=pattern, string='john.smith@somewhere.co.uk; hackzor@coolface.com')
+named_pattern = '(?P<name>[^;]+?)@(?P<address>.+?)\.(?P<domain>[^;]+)'
+t = tr.to_dict(pattern=named_pattern, string=emails)
 assert t[0]['name'] == 'john.smith'
 assert t[1]['address'] == 'coolface'
 
-t = tr.to_object(pattern=pattern, string='john.smith@somewhere.co.uk; hackzor@coolface.com')
+t = tr.to_object(pattern=named_pattern, string=emails)
 assert t[0].name == 'john.smith'
 assert t[1].address == 'coolface'
 ```
